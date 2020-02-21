@@ -20,11 +20,23 @@ namespace Speak_n_Leak
             InitializeComponent();
         }
 
-        async void Button_Clicked(System.Object sender, System.EventArgs e)
-        {
+        bool speaking;
+        int count = 0;
 
-            await Xamarin.Essentials.TextToSpeech.SpeakAsync((random.NextDouble() * 10).ToString("##.###"));
-            GC.Collect();
+        void Button_Clicked(System.Object sender, System.EventArgs e)
+        {
+            speaking = !speaking;
+            if (speaking)
+                Speak();
+        }
+
+        async Task Speak()
+        {
+            while (speaking)
+            {
+                button.Text = "Speak n Leak : " + (++count);
+                await Xamarin.Essentials.TextToSpeech.SpeakAsync(count.ToString());
+            }
         }
     }
 }

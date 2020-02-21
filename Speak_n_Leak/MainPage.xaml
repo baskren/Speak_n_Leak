@@ -8,7 +8,8 @@
     x:Class="Speak_n_Leak.MainPage">
     <!-- Place new controls here -->
     <Button
-        Text="Speek and Leak"
+        x:Name="button"
+        Text="Speak n Leak : 0"
         HorizontalOptions="Center"
         VerticalOptions="Center"
         Clicked="Button_Clicked" />
