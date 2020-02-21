@@ -38,5 +38,11 @@ namespace Speak_n_Leak
                 await Xamarin.Essentials.TextToSpeech.SpeakAsync(count.ToString());
             }
         }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            Xamarin.Essentials.TextToSpeech.SpeakAsync("Tap Speak n Leak to begin, tap again to stop.");
+        }
     }
 }
