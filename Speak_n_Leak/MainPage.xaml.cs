@@ -14,7 +14,6 @@ namespace Speak_n_Leak
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
-        readonly Random random = new Random();
         public MainPage()
         {
             InitializeComponent();
