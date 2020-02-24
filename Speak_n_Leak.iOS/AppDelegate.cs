@@ -25,6 +25,8 @@ namespace Speak_n_Leak.iOS
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
 
+            Xamarin.Ess.PlatformRenderer.Init();
+
             return base.FinishedLaunching(app, options);
         }
     }

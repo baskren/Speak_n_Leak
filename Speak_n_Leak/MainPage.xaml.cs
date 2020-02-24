@@ -34,14 +34,14 @@ namespace Speak_n_Leak
             while (speaking)
             {
                 button.Text = "Speak n Leak : " + (++count);
-                await Xamarin.Essentials.TextToSpeech.SpeakAsync(count.ToString());
+                await Xamarin.Ess.TextToSpeech.SpeakAsync(count.ToString());
             }
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            Xamarin.Essentials.TextToSpeech.SpeakAsync("Tap Speak n Leak to begin, tap again to stop.");
+            Xamarin.Ess.TextToSpeech.SpeakAsync("Tap Speak n Leak to begin, tap again to stop.");
         }
     }
 }
