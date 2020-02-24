@@ -31,7 +31,7 @@ namespace Xamarin.Ess
                 using (var speechUtterance = GetSpeechUtterance(text, options))
                 {
                     weakRef = new WeakReference(speechUtterance);
-                    await SpeakUtterance(speechUtterance, cancelToken);
+                    await SpeakUtterance(text, speechUtterance, cancelToken);
 
                     /*
                     if (disposeWhenDone)
@@ -49,7 +49,7 @@ namespace Xamarin.Ess
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 if (weakRef.IsAlive)
-                    System.Diagnostics.Debug.WriteLine("PlatformRenderer.IosSpeakAsync:" + "weakRef.IsAlive RetainCount=[" + ((NSObject)weakRef.Target).RetainCount + "]");
+                    System.Diagnostics.Debug.WriteLine("[" + DateTime.Now.ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK") + "] PlatformRenderer.IosSpeakAsync: text=[" + text + "] weakRef.IsAlive speechUtterance.RetainCount=[" + ((NSObject)weakRef.Target).RetainCount + "]");
             }
             catch (Exception e)
             {
@@ -86,8 +86,9 @@ namespace Xamarin.Ess
             return speechUtterance;
         }
 
-        internal static async Task SpeakUtterance(AVSpeechUtterance speechUtterance, CancellationToken cancelToken)
+        internal static async Task SpeakUtterance(string text, AVSpeechUtterance speechUtterance, CancellationToken cancelToken)
         {
+            bool disposed = false;
             var tcsUtterance = new TaskCompletionSource<bool>();
             var speechSynthesizer = new AVSpeechSynthesizer();
             var weakRef = new WeakReference(speechSynthesizer);
@@ -107,8 +108,30 @@ namespace Xamarin.Ess
             finally
             {
                 speechSynthesizer.DidFinishSpeechUtterance -= OnFinishedSpeechUtterance;
-                if (disposeWhenDone)
+
+            }
+
+            void TryCancel()
+            {
+                speechSynthesizer?.StopSpeaking(AVSpeechBoundary.Word);
+                Dispose();
+                tcsUtterance?.TrySetResult(true);
+            }
+
+            void OnFinishedSpeechUtterance(object sender, AVSpeechSynthesizerUteranceEventArgs args)
+            {
+                if (speechUtterance == args.Utterance)
                 {
+                    Dispose();
+                    tcsUtterance?.TrySetResult(true);
+                }
+            }
+
+            void Dispose()
+            {
+                if (!disposed && disposeWhenDone)
+                {
+                    disposed = true;
                     speechSynthesizer.Delegate?.Dispose();
                     speechSynthesizer.Delegate = null;
                     speechSynthesizer.WeakDelegate?.Dispose();
@@ -121,22 +144,8 @@ namespace Xamarin.Ess
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 if (weakRef.IsAlive)
-                    System.Diagnostics.Debug.WriteLine("PlatformRenderer.SpeakUtterance:" + "weakRef.IsAlive RetainCount=[" + speechSynthesizer.RetainCount + "]");
-
+                    System.Diagnostics.Debug.WriteLine("[" + DateTime.Now.ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK") + "] PlatformRenderer.SpeakUtterance: text=[" + text + "]  weakRef.IsAlive  speechSynthesizer.RetainCount=[" + speechSynthesizer.RetainCount + "]");
             }
-
-            void TryCancel()
-            {
-                speechSynthesizer?.StopSpeaking(AVSpeechBoundary.Word);
-                tcsUtterance?.TrySetResult(true);
-            }
-
-            void OnFinishedSpeechUtterance(object sender, AVSpeechSynthesizerUteranceEventArgs args)
-            {
-                if (speechUtterance == args.Utterance)
-                    tcsUtterance?.TrySetResult(true);
-            }
-
         }
     }
 }
