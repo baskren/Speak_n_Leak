@@ -27,7 +27,6 @@ namespace Xamarin.Ess
 
         internal static async Task IosSpeakAsync(string text, SpeechOptions options, CancellationToken cancelToken = default)
         {
-            speechSynthesizer = speechSynthesizer ?? new AVSpeechSynthesizer();
             try
             {
                 WeakReference weakRef = null;
@@ -89,6 +88,8 @@ namespace Xamarin.Ess
 
         internal static async Task SpeakUtterance(string text, AVSpeechUtterance speechUtterance, CancellationToken cancelToken)
         {
+            speechSynthesizer = speechSynthesizer ?? new AVSpeechSynthesizer();
+
             var taskCompletionSource = new TaskCompletionSource<bool>();
             try
             {
